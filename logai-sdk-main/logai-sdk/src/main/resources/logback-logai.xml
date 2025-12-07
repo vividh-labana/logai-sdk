@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Sample Logback configuration with LogAI appender.
+    Copy this to your application's resources folder and customize as needed.
+-->
+<configuration>
+    <!-- Console appender (standard output) -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- File appender (rolling daily) -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/application.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/application.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- LogAI appender for error analysis -->
+    <appender name="LOGAI" class="com.logai.sdk.LogAIAppender">
+        <!-- Path to SQLite database for log storage -->
+        <dbPath>logai.db</dbPath>
+        
+        <!-- Only capture logs at this level and above (TRACE, DEBUG, INFO, WARN, ERROR) -->
+        <threshold>WARN</threshold>
+        
+        <!-- Batch size for database writes (improves performance) -->
+        <batchSize>100</batchSize>
+        
+        <!-- How often to flush pending logs to database (milliseconds) -->
+        <flushIntervalMs>5000</flushIntervalMs>
+        
+        <!-- Maximum queue size (logs are dropped if queue is full) -->
+        <queueSize>10000</queueSize>
+        
+        <!-- Include caller information (file, line, method) - slight performance cost -->
+        <includeCallerData>true</includeCallerData>
+    </appender>
+
+    <!-- Application logger -->
+    <logger name="com.example" level="DEBUG" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+        <appender-ref ref="LOGAI"/>
+    </logger>
+
+    <!-- Root logger -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+        <appender-ref ref="LOGAI"/>
+    </root>
+</configuration>
+
